@@ -1,0 +1,11 @@
+{
+  "name": "naukri-automation",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node naukri.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.0"
+  }
+}
