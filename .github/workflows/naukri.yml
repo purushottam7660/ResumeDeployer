@@ -1,0 +1,40 @@
+name: Naukri Automation
+
+on:
+  schedule:
+    - cron: '30 2,3,8,9 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install packages
+        run: |
+          npm install
+          npx playwright install chromium
+
+      - name: Run script
+        env:
+          NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
+          NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+        run: node naukri.js
+        continue-on-error: true
+
+      - name: Upload debug files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: naukri-debug
+          path: |
+            screenshots/
+            html_dump/
