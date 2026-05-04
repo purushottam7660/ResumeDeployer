@@ -5,6 +5,9 @@ const { chromium } = require("@playwright/test");
 const EMAIL = process.env.NAUKRI_EMAIL;
 const PASSWORD = process.env.NAUKRI_PASSWORD;
 
+// 👉 Proxy (optional)
+const PROXY = process.env.PROXY;
+
 const BASE_DIR = __dirname;
 const SOURCE_RESUME = path.join(BASE_DIR, "Purushottam_Kumar_CV.pdf");
 const DEST_FOLDER = path.join(BASE_DIR, "Naukri_resume");
@@ -70,13 +73,25 @@ async function dump(page, name) {
 }
 
 async function createBrowser() {
-  const browser = await chromium.launch({
+  const launchOptions = {
     headless: true,
     args: [
       "--disable-blink-features=AutomationControlled",
       `--user-agent=${USER_AGENT}`
     ]
-  });
+  };
+
+  // 👉 Proxy logic
+  if (PROXY && PROXY.trim() !== "") {
+    launchOptions.proxy = {
+      server: PROXY
+    };
+    log(`Proxy enabled: ${PROXY}`);
+  } else {
+    log("No proxy found → using default network");
+  }
+
+  const browser = await chromium.launch(launchOptions);
 
   const context = await browser.newContext({
     userAgent: USER_AGENT,
@@ -140,7 +155,6 @@ async function login(page) {
   );
 
   await loginButton.scrollIntoViewIfNeeded();
-
   await wait(1000);
 
   await loginButton.click();
